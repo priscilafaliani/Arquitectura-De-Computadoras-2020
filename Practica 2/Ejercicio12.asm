@@ -42,7 +42,7 @@ iret
 org 100
 dw timerSR
 
-; interruptions set up
+; pic and timer set up
 org 2000h
 cli
 mov al, IMRMASK
