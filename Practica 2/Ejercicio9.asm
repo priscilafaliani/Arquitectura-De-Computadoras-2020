@@ -21,81 +21,95 @@ cmp al, 0
 jnz repetir
 finLeer: ret
 
-; recibe por pila dos caracteres
-; retorna en *al* 0FFh si son iguales o 00h en caso contrario
-COMPARECHAR: push dx
-push bx
-mov bx, sp
-add bx, 2
-; guarda primer caracter
-push bx
-mov bx, [bx]
-mov dl, [bx]
-pop bx
-; guarda segundo caracter
-add bx, 2
-mov bx, [bx]
-mov dh, [bx]
-; compara
-cmp dh, dl
-jz sonIguales
-mov al, 00h
+; recibe un caracter en al y otro en ah
+; retorna en al 0FFh si son iguales, 00h de caso contrario
+COMPARECHAR: cmp al, ah
+jnz diferentes
+mov al, 0FFh
 jmp fin
-sonIguales: mov al, 0FFh
-fin: push bx
-pop dx
-ret
+diferentes: mov al, 00h
+fin: ret
 
-; recibe por pila dos direcciones de comienzo de strings
-; recibe por pila la cantidad de caracteres de cada string
-; asume que son del mismo largo
-; retorna por pila si son iguales 0FFh
-COMPAREKEY: push ax
+; recibe dos direcciones de strings por pila
+; recibe en ah el largo de las cadenas (asumimos que son del mismo largo)
+; retorna en al 0FFh si son iguales o 00h en caso contrario
+COMPAREKEY: cmp ah, 0
+jz diferentesClaves
 push bx
 push cx
 push dx
 mov bx, sp
-; recupera la cantidad de caracteres
-add bx, 10
-
-push dx
-push cx
-push bx
-push ax
+; __recupera primer direccion__
+add bx, 8
+mov cx, [bx]
+; __recupera segunda direccion__
+add bx, 2
+mov dx, [bx]
+; __recupera los caracteres__
+; salva la cantidad de caracteres
+repetirCompareK: push ax 
+mov bx, cx
+mov ah, [bx]
+mov bx, dx
+mov al, [bx]
+call COMPARECHAR
+; __verifica la igualdad__
+cmp al, 0FFH
+pop ax ; recupera la cantidad de caracteres
+; __si son caracteres distintos__
+jnz diferentesClaves
+; __se prepara para el siguiente caracter__
+inc cx
+inc dx
+dec ah
+cmp ah, 0
+jnz repetirCompareK
+; __si llego al final es que son iguales__
+mov al, 0FFh
+jmp finCompareK
+diferentesClaves: mov al, 00h
+finCompareK: pop dx
+pop cx
+pop bx
 ret
 
+; PRINCIPAL PROGRAM ;
 org 2000h
 ; prompt
 mov bx, offset prompt
 mov al, offset finPrompt - offset prompt
 int 7
+
 ; read
 mov bx, offset claveLeida
 mov al, 4
 call LEER
-; verify
+
+; compare
 mov ax, offset clave
 push ax
 mov ax, offset claveLeida
 push ax
-mov ax, offset finClave - offset clave
-push ax
+mov ah, offset finClave - offset clave
 call COMPAREKEY
-; returns sp
-pop dx
-pop dx
-pop dx
-; checks if equals
+
+; checks results
 cmp al, 0FFh
-jz iguales
-; prints result
-; inequal
-mov bx, offset accesoDenegado
+jnz diffKeys
+; returns allowed access msg
+mov bx, offset accesoPermitido
+mov al, offset finAcceso - offset accesoPermitido
+int 7
+jmp finProgram
+
+; returns denied access msg
+diffKeys: mov bx, offset accesoDenegado
 mov al, offset finDenegado - offset accesoDenegado
 int 7
-; equal
-iguales: mov bx, offset accesoPermitido
-mov al, offset finAcceso - offset accesoPermitido
+
+; returns sp
+finProgram: pop ax
+pop ax
 
 int 0 
 end
