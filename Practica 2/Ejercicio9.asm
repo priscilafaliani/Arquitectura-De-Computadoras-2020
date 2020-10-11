@@ -3,11 +3,11 @@ prompt db "Ingrese clave: "
 finPrompt db ?
 clave db "1234"
 finClave db ?
-claveLeida db 0
 accesoPermitido db "Acceso permitido"
 finAcceso db ?
 accesoDenegado db "Acceso denegado"
 finDenegado db ?
+claveLeida db 0
 
 org 3000h
 ; recibe en bx la direccion inicial a guardar string
@@ -46,62 +46,22 @@ fin: push bx
 pop dx
 ret
 
-
-; recibe por pila la direccion de comienzo de dos claves
-; luego tambien por la pila la cantidad de caracteres de las claves
-; se asume que ambas claves son del mismo largo
-; retorna en *al* 0FFh si son iguales o 00h en caso contrario
-COMPAREKEY: push bx ; salva registros
+; recibe por pila dos direcciones de comienzo de strings
+; recibe por pila la cantidad de caracteres de cada string
+; asume que son del mismo largo
+; retorna por pila si son iguales 0FFh
+COMPAREKEY: push ax
+push bx
 push cx
 push dx
-; recupera los datos
 mov bx, sp
-; clave 1
-add bx, 4
-mov cx, [bx]
-; clave 2
-add bx, 2
-mov dx, [bx]
-; cantidad de caracteres
-sub bx, 4
-; comienza a comparar
-; si no hay caracteres termina
-repetirComparar: push bx
-mov bl, [bx]
-cmp bl, 0
-pop bx
-jz finComparar
+; recupera la cantidad de caracteres
+add bx, 10
+
+push dx
+push cx
 push bx
-; primer caracter
-mov bx, cx
-mov bx, [bx]
-push bx
-; segundo caracter
-mov bx, dx
-mov bx, [bx]
-push bx
-call COMPARECHAR
-; recupera cant de caracteres
-push bx
-push bx
-push bx
-; verifica
-cmp al, 0FFh
-jnz finComparar 
-; si fueron iguales, repite
-dec [bx]
-inc cx
-inc dx
-jmp repetirComparar
-; verifica si salió antes de tiempo o recorrio todas las claves y fueron iguales 
-finComparar: cmp al, [bx]
-jz clavesIguales
-mov al, 00h
-jmp final
-clavesIguales: mov al, 0FFh
-final: pop dx
-pop cx
-pop bx
+push ax
 ret
 
 org 2000h
