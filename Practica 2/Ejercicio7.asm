@@ -50,7 +50,7 @@ ret
 ; recibe en bx la direccion inicial de un vector de números
 ; recibe en al la cantidad de elementos del vector
 ; se asume que son todos números
- intToCharAll: push ax
+intToCharAll: push ax
 cmp al, 0
 jz endIntToChar
 repetirToChar: call intToChar
