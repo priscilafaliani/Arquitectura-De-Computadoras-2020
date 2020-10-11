@@ -1,7 +1,9 @@
 ; constants
 EOI EQU 20h
 IMR EQU 21h
-IMRMASK EQU 11111101b
+IMRMASK EQU 11111100b
+F10 EQU 24h
+F10ID EQU 24
 TIMER EQU 25h
 TIMERID EQU 25
 RCONT EQU 10h
@@ -15,9 +17,9 @@ segundos1 db 30h
 segundos2 db 30h
 finClock db 0
 
-; timer subroutine
+; activate/deativate subroutine
 org 3000h
-TIMERSR:
+CLOCKROUTINE: 
 mov al, EOI
 out EOI, al
 iret
@@ -31,6 +33,8 @@ org 2000h
 cli
 mov al, IMRMASK
 out IMR, al
+mov al, F10ID
+out F10, al
 mov al, TIMERID
 out TIMER, al
 mov al, 10

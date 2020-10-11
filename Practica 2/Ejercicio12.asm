@@ -9,34 +9,34 @@ RCOMP EQU 11h
 
 ; reloj con formato 00:00
 org 1000h
-minutos1 db 30h
-minutos2 db 30h
+min db "0"
+min2 db "0"
 semicolon db ":"
-segundos1 db 30h
-segundos2 db 30h
+seg db "0"
+seg2 db "0"
 enterA db 0Dh
 finReloj db ?
 
 ; timer subroutine
 org 3000h
 ; si llego al 00:09 (o similar)
-timerSR: cmp segundos2, 39h
+timerSR: cmp seg2, 39h
 jz checkSegundos1
-inc segundos2
+inc seg2
 jmp print
 ; si llego al 00:59
-checkSegundos1: cmp segundos1, 35h
+checkSegundos1: cmp seg, 35h
 jz fin
 ; si no, incrementa 00:*0*0 y reinicia 00:0*0*
-inc segundos1
-mov segundos2, 30h
+inc seg
+mov seg2, 30h
 print: int 7
 mov al, 0
 ; reinicia el contador
 out RCONT, al
 mov al, EOI
 out EOI, al
-iret
+fin: iret
 
 ; int vector set up
 org 100
@@ -53,11 +53,11 @@ mov al, 1
 out RCOMP, al
 mov al, 0
 out RCONT, al
-mov bx, offset minutos1
-mov al, offset finReloj - offset minutos1
+mov bx, offset min
+mov al, offset finReloj - offset min
 sti
 
 count: jmp count
 
-fin: int 0
+hlt
 end
