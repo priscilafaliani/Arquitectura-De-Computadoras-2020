@@ -16,6 +16,7 @@ segundos1 db 30h
 segundos2 db 30h
 enterA db 0Dh
 finReloj db 0
+flag db 0
 
 ; timer subroutine
 org 3000h
@@ -32,10 +33,12 @@ inc segundos1
 mov segundos2, 30h
 print: mov al, offset finReloj - offset minutos1
 int 7
-mov al, 0
 ; reinicia el contador
+mov al, 0
 out RCONT, al
-mov al, EOI
+jmp seguir
+fin: mov flag, 1
+seguir: mov al, EOI
 out EOI, al
 iret
 
@@ -57,7 +60,8 @@ out RCONT, al
 mov bx, offset minutos1
 sti
 
-count: jmp count
+count: cmp flag, 1
+jnz count
 
-fin: int 0
+int 0
 end
