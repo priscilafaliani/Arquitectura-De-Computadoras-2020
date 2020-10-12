@@ -22,7 +22,7 @@ endClock db 0
 
 ; int subroutines
 org 3000h
-; pausa/reanuda/inicia el las interrupciones del timer
+; pausa/reanuda/inicia las interrupciones del timer
 F10SR: push ax
 in al, IMR
 xor al, 00000010b
@@ -30,7 +30,6 @@ out IMR, al
 ; en cualquier caso, reinicia el contador
 mov al, 0  
 out RCONT, al
-; imprime un mensaje
 ; end of interruption
 mov al, EOI
 out EOI, al
