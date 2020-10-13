@@ -11,6 +11,7 @@ RCOMP EQU 11h
 
 ; variables
 org 1000h
+flag db 0
 cantN dw 0
 num db 0
 
@@ -37,36 +38,51 @@ out EOI, al
 iret
 
 ; hace la cuenta regresiva
-TIMERSR: push bx
-mov bx, dx
-; si llego al final del numero
-cmp bx, 13
-pop bx
-jz finCuentaAtras
-push bx
+TIMERSR: cmp cantN, 2
+; si solo tiene que imprimir 1 digito
+jz restaSimple
 ; si tengo que hacer 0 - 1
 ; simula el proceso de pedir al companero (o a los companeros)
 repetir: cmp byte ptr [bx], 30h
+; si no hay que pedir no hay problema en la resta
 jnz restaSimple
 mov byte ptr [bx], 39h
+; ahora voy a ver si debo decrementar el anterior o pedir de nuevo
 dec bx
-; es necesario pedir a otro?
 jmp repetir
 restaSimple: dec byte ptr [bx]
+; el primer digito quedo en cero? entonces lo quito porque no es significativo
+; guardo bx (para poder apuntar al primero)
+push bx
 mov bx, dx
-; el primer digito es cero? entonces lo quito
 cmp byte ptr [bx], 30h
+; recupero bx, es decir, el puntero al último
 pop bx
+; si no era cero, puedo imprimir
 jnz finCrearNumero
+; si era cero, "elimino" el primer digito
 inc dx
+; si la direccion del primero es mayor que el último, entonces quiere decir que termine
+cmp bx, dx
+js finCuentaAtras
+; si no, puedo decrementar la cantidad de numeros
 dec cantN
+; imprime el numero 
 finCrearNumero: push bx
 mov bx, dx
 mov al, cantN
 int 7
 pop bx
+jmp finTimer
+; cuando llega a 0 detiene el timer e imprime el 0 final
+finCuentaAtras: mov flag, 1
+in al, IMR
+xor al, 00000011b
+out IMR, al
+mov al, 1
+int 7
 ; end of interruption
-finCuentaAtras: mov al, 0
+finTimer: mov al, 0
 out RCONT, al
 mov al, EOI
 out EOI, al
@@ -114,8 +130,10 @@ inc cantN ; para que cuando imprima de el salto de linea
 ; queda apuntando al ultimo caracter
 dec bx
 sti
-; espera que se inicie la cuenta atras con f10
-lazo: jmp lazo
 
-HLT
+; espera que se inicie la cuenta atras con f10 o que termine la cuenta atras
+lazo: cmp flag, 1
+jnz lazo
+
+int 0
 END
