@@ -39,33 +39,30 @@ iret
 
 ; hace la cuenta regresiva
 TIMERSR: cmp cantN, 2
-; si solo tiene que imprimir 1 digito
+push bx
 jz restaSimple
 ; si tengo que hacer 0 - 1
 ; simula el proceso de pedir al companero (o a los companeros)
 repetir: cmp byte ptr [bx], 30h
-; si no hay que pedir no hay problema en la resta
 jnz restaSimple
 mov byte ptr [bx], 39h
-; ahora voy a ver si debo decrementar el anterior o pedir de nuevo
 dec bx
 jmp repetir
 restaSimple: dec byte ptr [bx]
+pop bx
 ; el primer digito quedo en cero? entonces lo quito porque no es significativo
-; guardo bx (para poder apuntar al primero)
 push bx
 mov bx, dx
 cmp byte ptr [bx], 30h
-; recupero bx, es decir, el puntero al último
 pop bx
 ; si no era cero, puedo imprimir
 jnz finCrearNumero
-; si era cero, "elimino" el primer digito
 inc dx
-; si la direccion del primero es mayor que el último, entonces quiere decir que termine
-cmp bx, dx
-js finCuentaAtras
-; si no, puedo decrementar la cantidad de numeros
+push bx
+mov bx, dx
+cmp byte ptr [bx], 13
+pop bx
+jz finCuentaAtras
 dec cantN
 ; imprime el numero 
 finCrearNumero: push bx
@@ -116,7 +113,7 @@ out F10, al
 mov al, TIMERID
 out TIMER, AL
 ; comp
-mov al, 1
+mov al, 2
 out RCOMP, al
 ; lee el numero
 mov bx, offset num
