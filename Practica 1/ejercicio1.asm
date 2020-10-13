@@ -4,11 +4,11 @@
 org 2000h
   mov ax, 5 ; SP = 8000h, AX = 5, BX = ?
   mov bx, 3 ; SP = 8000h, AX = 5, BX = 3
-  push ax   ; SP = 7FFEh, AX Y BX SE MANTIENEN.
-  push ax   ; SP = 7FFCh
-  push bx   ; SP = 7FFAh
-  pop bx    ; SP = 7FFCh
-  pop bx    ; SP = 7FFEh
-  pop ax    ; SP = 8000h
+  push ax   ; SP = 7FFEh -> 5, AX = 5, BX = 3
+  push ax   ; SP = 7FFCh -> 5, AX = 5, BX = 3
+  push bx   ; SP = 7FFAh -> 3 AX = 5, BX = 3
+  pop bx    ; SP = 7FFCh -> 5, BX = 3, AX = 5
+  pop bx    ; SP = 7FFEh -> 3, BX = 5, AX = 5
+  pop ax    ; SP = 8000h BX = 5, AX = 5
 hlt
 end
