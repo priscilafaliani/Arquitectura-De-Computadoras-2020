@@ -40,7 +40,7 @@ iret
 TIMERSR: push bx
 mov bx, dx
 ; si llego al final del numero
-cmp bx, 32
+cmp bx, 13
 pop bx
 jz finCuentaAtras
 push bx
