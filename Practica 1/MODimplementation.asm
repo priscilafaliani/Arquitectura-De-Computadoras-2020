@@ -1,6 +1,6 @@
 org 1000h
-num db 15
-divisor db 9
+num dw 231
+divisor dw 9
 result db 0
 
 ; subrutina que calcula la division entre dos numeros positivos.
@@ -9,30 +9,35 @@ result db 0
 ; se envia el resultado por la pila por valor.
 org 3000h
 MOD: push bx
+push dx
 push ax
 mov bx, sp
 ; recupero los numeros
-add bx, 8 
+add bx, 12
 mov ax, [bx]
+sub bx, 2
+mov dx, [bx]
 ; resultado
 sub bx, 2
 mov word ptr [bx], 00h
 ; loop de restas
-loop: cmp ah, al
+loop: cmp ax, dx
 js restoOtro
-jz Resto0
-sub ah, al
+jz resto0
+sub ax, dx
 jmp loop
-restroOtro: mov byte ptr [bx], ah
+restoOtro: mov word ptr [bx], ax
 jmp finreal
 resto0: mov byte ptr [bx], 0
 finreal: pop ax
+pop dx
 pop bx
 ret
 
 org 2000h
-mov ah, num
-mov al, divisor
+mov ax, num
+push ax
+mov ax, divisor
 push ax
 push ax ; para el resultado
 call MOD
