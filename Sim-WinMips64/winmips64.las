@@ -1,0 +1,1 @@
+C:\Users\Prisc\Desktop\Arquitectura-De-Computadoras-2020\Practica 6\ejercicio4.s
