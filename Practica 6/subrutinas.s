@@ -28,3 +28,9 @@ repetir:    sw $t0, 0($s0)  ; lee y guarda
             j repetir
 fin: dadd $v0, $t2, $zero
      jr $ra
+
+
+ ; limpia la pantalla grafica
+ clear:  daddi $t1, $t0, 6
+         sd $t1, $0($s0)
+ jr $ra
